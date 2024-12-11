@@ -3,7 +3,7 @@ package persistencia;
 import java.sql.*;
 
 public class UsuarioDAO {
-    private static final String URL = "jdbc:mysql://localhost:3306/mi_base_de_datos";
+    private static final String URL = "jdbc:mysql://localhost:521/xe";
     private static final String USER = "SYSTEM";
     private static final String PASSWORD = "23889";
 

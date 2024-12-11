@@ -6,6 +6,7 @@
 package presentacion;
 import javax.swing.*;
 import negocio.UsuarioNegocio;
+import java.awt.GridLayout;
 
 public class LoginForm extends javax.swing.JFrame {
     private JTextField txtUsuario;
@@ -16,7 +17,7 @@ public class LoginForm extends javax.swing.JFrame {
 
     public LoginForm() {
         setTitle("Inicio de sesión");
-        setSize(300, 200);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -93,9 +94,10 @@ public class LoginForm extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
          SwingUtilities.invokeLater(() -> {
-            LoginForm form = new LoginForm();
-            form.setVisible(true);
-        });
+        LoginForm form = new LoginForm();
+        form.setExtendedState(JFrame.MAXIMIZED_BOTH);  // Pantalla completa
+        form.setVisible(true);
+    });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

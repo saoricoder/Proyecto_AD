@@ -7,6 +7,7 @@ package presentacion;
 
 import javax.swing.*;
 import negocio.UsuarioNegocio;
+import java.awt.GridLayout;
 
 public class CrearCuentaForm extends javax.swing.JFrame {
     private JTextField txtUsuario;
