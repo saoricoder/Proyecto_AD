@@ -1,9 +1,6 @@
 package negocio;
 
 import persistencia.BibliotecaDAO;
-import java.util.List;
-import java.util.ArrayList;
-
 
 public class BibliotecaNegocio {
     private BibliotecaDAO dao;
@@ -12,20 +9,15 @@ public class BibliotecaNegocio {
         dao = new BibliotecaDAO();
     }
 
-    public void agregarAutor(String codigo, String nombre, String apellido) {
-        dao.insertarAutor(codigo, nombre, apellido);
+    public void agregarAutor(String nombre, String apellido) {
+        if (nombre != null && !nombre.isEmpty() && apellido != null && !apellido.isEmpty()) {
+            dao.insertarAutor(nombre, apellido);
+        } else {
+            throw new IllegalArgumentException("Nombre y apellido no pueden estar vacíos.");
+        }
     }
 
-    public void modificarAutor(String codigo, String nombre, String apellido) {
-        dao.modificarAutor(codigo, nombre, apellido);
-    }
-
-    public void eliminarAutor(String codigo) {
-        dao.eliminarAutor(codigo);
-    }
-
-    public List<String> listarAutores() {
-        return dao.listarAutores();
-    }
+    // Métodos adicionales (Modificar, Eliminar, Buscar) pueden añadirse aquí
 }
+
 

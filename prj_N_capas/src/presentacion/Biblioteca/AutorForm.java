@@ -1,12 +1,10 @@
-
-package presentacion;
+package presentacion.Biblioteca;
 
 import javax.swing.*;
 import negocio.BibliotecaNegocio;
 import java.awt.GridLayout;
 
-public class BibliotecaForm extends javax.swing.JFrame {
-    private JTextField txtCodigo;
+public class AutorForm extends javax.swing.JFrame {
     private JTextField txtNombre;
     private JTextField txtApellido;
     private JButton btnGuardar;
@@ -14,20 +12,16 @@ public class BibliotecaForm extends javax.swing.JFrame {
     private JButton btnEliminar;
     private JButton btnBuscar;
 
-    public BibliotecaForm() {
-        setTitle("Modulo de Biblioteca");
-        setSize(500, 400); // Asegúrate de que la ventana sea de un tamaño adecuado
+    public AutorForm() {
+        setTitle("Módulo de Biblioteca - Gestión de Autores");
+        setSize(500, 400); // Tamaño adecuado para una buena visibilidad
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(6, 2));
+        panel.setLayout(new GridLayout(5, 2));
 
         // Entrada de Autor
-        panel.add(new JLabel("Código Autor:"));
-        txtCodigo = new JTextField();
-        panel.add(txtCodigo);
-
         panel.add(new JLabel("Nombre Autor:"));
         txtNombre = new JTextField();
         panel.add(txtNombre);
@@ -49,15 +43,22 @@ public class BibliotecaForm extends javax.swing.JFrame {
 
         add(panel);
 
-        // Acción al presionar guardar
+        // Acción al presionar Guardar
         btnGuardar.addActionListener(e -> {
-        String codigo = txtCodigo.getText();
-        String nombre = txtNombre.getText();
-        String apellido = txtApellido.getText();
-        BibliotecaNegocio negocio = new BibliotecaNegocio(); // Crear una instancia de BibliotecaNegocio
-        negocio.agregarAutor(codigo, nombre, apellido); // Llamar al método agregarAutor
-        JOptionPane.showMessageDialog(this, "Autor guardado.");
-    });
+            String nombre = txtNombre.getText();
+            String apellido = txtApellido.getText();
+
+            BibliotecaNegocio negocio = new BibliotecaNegocio();
+            negocio.agregarAutor(nombre, apellido); // Código generado automáticamente
+            JOptionPane.showMessageDialog(this, "Autor guardado exitosamente.");
+        });
+
+        // Otras acciones (Modificar, Eliminar, Buscar) pueden añadirse aquí
+    }
+
+    private void limpiarCampos() {
+        txtNombre.setText("");
+        txtApellido.setText("");
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -84,7 +85,7 @@ public class BibliotecaForm extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         SwingUtilities.invokeLater(() -> {
-            BibliotecaForm form = new BibliotecaForm();
+            AutorForm form = new AutorForm();
             form.setVisible(true);
         });
     }

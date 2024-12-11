@@ -1,6 +1,6 @@
 package escucha;
 
-import presentacion.BibliotecaForm;
+import presentacion.Biblioteca.AutorForm;
 import presentacion.ModuloSeleccionForm;
 import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
@@ -23,7 +23,7 @@ public class ModuloSeleccionListener implements ActionListener {
         } else if (source == form.getBtnSeleccion()) {
             JOptionPane.showMessageDialog(null, "Abrir módulo Selección");
         } else if (source == form.getBtnBiblioteca()) {
-            new BibliotecaForm().setVisible(true);
+            new AutorForm().setVisible(true);
             form.dispose();
         }
     }
