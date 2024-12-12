@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class Conexion {
+public class conexion {
     private static final String URL = "jdbc:oracle:thin:@localhost:1521:XE"; // Cambiar según configuración
     private static final String USER = "SYSTEM";
     private static final String PASSWORD = "23899";

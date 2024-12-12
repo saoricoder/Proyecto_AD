@@ -3,13 +3,13 @@ package persistencia;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import recursos.conexion.Conexion;
+import recursos.conexion.conexion;
 
 public class BibliotecaDAO {
-    private Conexion conexion;
+    private conexion conexion;
 
     public BibliotecaDAO() {
-        this.conexion = new Conexion();
+        this.conexion = new conexion();
     }
 
     public void insertarAutor(String nombre, String apellido) {
