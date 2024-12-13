@@ -1,4 +1,3 @@
-
 package recursos.conexion;
 
 import java.sql.Connection;
@@ -6,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class conexion {
-    private static final String URL = "jdbc:oracle:thin:@localhost:1521:XE"; // Cambiar según configuración
+    private static final String URL = "jdbc:oracle:thin:@localhost:1521:XE"; // Cambia si usas otro puerto o SID
     private static final String USER = "SYSTEM";
     private static final String PASSWORD = "23899";
     private Connection conexion;
@@ -15,7 +14,7 @@ public class conexion {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             conexion = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Conexión exitosa a la base de datos");
+            System.out.println("Conexión exitosa a la base de datos Oracle");
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Error al conectar: " + e.getMessage());
         }
@@ -33,3 +32,4 @@ public class conexion {
         }
     }
 }
+

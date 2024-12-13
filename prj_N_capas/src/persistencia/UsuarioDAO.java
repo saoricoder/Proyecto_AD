@@ -1,20 +1,22 @@
 package persistencia;
 
-import java.sql.*;
+import recursos.conexion.conexion;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UsuarioDAO {
-    private static final String URL = "jdbc:mysql://localhost:521/xe";
-    private static final String USER = "SYSTEM";
-    private static final String PASSWORD = "23889";
 
     public boolean validarUsuario(String usuario, String contrasena) {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        conexion db = new conexion();
+        try (Connection conn = db.conectar()) {
             String query = "SELECT * FROM usuarios WHERE usuario = ? AND contrasena = ?";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, usuario);
                 stmt.setString(2, contrasena);
                 try (ResultSet rs = stmt.executeQuery()) {
-                    return rs.next();  // Si se encuentra el usuario, retorna true
+                    return rs.next(); // Si se encuentra el usuario, retorna true
                 }
             }
         } catch (SQLException e) {
@@ -24,7 +26,8 @@ public class UsuarioDAO {
     }
 
     public void crearUsuario(String usuario, String contrasena) {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        conexion db = new conexion();
+        try (Connection conn = db.conectar()) {
             String query = "INSERT INTO usuarios (usuario, contrasena) VALUES (?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, usuario);

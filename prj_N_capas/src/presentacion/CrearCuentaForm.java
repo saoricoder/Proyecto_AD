@@ -8,16 +8,16 @@ public class CrearCuentaForm extends javax.swing.JFrame {
     private JTextField txtUsuario;
     private JPasswordField txtPassword;
     private JButton btnCrear;
-    private JButton btnRegresar;  // Botón para regresar al inicio de sesión
-    
+    private JButton btnRegresar;
+
     public CrearCuentaForm() {
         setTitle("Crear cuenta");
-        setSize(300, 200);  // Tamaño de la ventana más pequeño
+        setSize(300, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2));  // Ajustar el grid para el nuevo botón
+        panel.setLayout(new GridLayout(4, 2));
 
         panel.add(new JLabel("Nuevo Usuario:"));
         txtUsuario = new JTextField();
@@ -30,7 +30,6 @@ public class CrearCuentaForm extends javax.swing.JFrame {
         btnCrear = new JButton("Crear cuenta");
         panel.add(btnCrear);
 
-        // Botón "Regresar" agregado
         btnRegresar = new JButton("Regresar");
         panel.add(btnRegresar);
 
@@ -40,19 +39,16 @@ public class CrearCuentaForm extends javax.swing.JFrame {
         btnCrear.addActionListener(e -> {
             String usuario = txtUsuario.getText();
             String contrasena = new String(txtPassword.getPassword());
-            // Lógica para crear el usuario en la base de datos
             UsuarioNegocio.crearUsuario(usuario, contrasena);
             JOptionPane.showMessageDialog(this, "Cuenta creada exitosamente.");
-            LoginForm loginForm = new LoginForm();
-            loginForm.setVisible(true);
-            this.dispose();  // Cerrar la ventana de crear cuenta
+            new LoginForm().setVisible(true);
+            this.dispose();
         });
 
-        // Acción para regresar a la ventana de inicio de sesión
+        // Acción para regresar al inicio de sesión
         btnRegresar.addActionListener(e -> {
-            LoginForm loginForm = new LoginForm();
-            loginForm.setVisible(true);
-            this.dispose();  // Cerrar la ventana de crear cuenta
+            new LoginForm().setVisible(true);
+            this.dispose();
         });
     }
 
