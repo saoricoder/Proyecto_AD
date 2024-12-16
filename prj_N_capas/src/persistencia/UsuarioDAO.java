@@ -94,7 +94,7 @@ public class UsuarioDAO {
         return usuarioObj;
     }
         public boolean validarUsuario(String usuario, String contrasena) throws SQLException {
-            String sql = "SELECT * FROM usuario WHERE usuario = ? AND password = ?";
+            String sql = "SELECT * FROM usuarios WHERE usuario = ? AND password = ?";
 
             // Crear una instancia de la clase conexion y obtener la conexión
             conexion conexionDB = new conexion();

@@ -98,12 +98,12 @@ public class ReporteLibroForm extends JFrame {
 
             // Obtener columnas dinámicas
             tableModel.addColumn("Libro / Autor");
-            while (resultSet.next()) {
+            /**while (resultSet.next()) {
                 String autor = resultSet.getString("autor");
                 if (!tableModel.getColumnIdentifiers().contains(autor)) {
                     tableModel.addColumn(autor);
                 }
-            }
+            }**/
 
             // Reiniciar el ResultSet para llenar filas
             resultSet.beforeFirst();

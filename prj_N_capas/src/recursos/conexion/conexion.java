@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 public class conexion {
     // Variables de conexión (mejor usar variables de entorno)
     private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe"; // Cambia si usas otro puerto o SID
-    private static final String USER = System.getenv("DB_USER"); // Asegúrate de que la variable de entorno esté configurada
-    private static final String PASSWORD = System.getenv("DB_PASSWORD"); // Asegúrate de que la variable de entorno esté configurada
+    private static final String USER = "SYSTEM"; // Asegúrate de que la variable de entorno esté configurada
+    private static final String PASSWORD = "23889"; // Asegúrate de que la variable de entorno esté configurada
 
     // Objeto para la conexión y el log
     private Connection conn;
@@ -21,7 +21,8 @@ public class conexion {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             // Establecer la conexión
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            LOGGER.info("Conexión exitosa a la base de datos Oracle");
+            //LOGGER.info("Conexión exitosa a la base de datos Oracle");
+            System.out.println("Mensaje de prueba");
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, "El driver de Oracle no fue encontrado", e);
         } catch (SQLException e) {
@@ -65,7 +66,7 @@ public class conexion {
 
     // Método para agregar un nuevo usuario
     public boolean agregarUsuario(String usuario, String password) {
-        String sql = "INSERT INTO usuario (usuario, password) VALUES (?, ?)";
+        String sql = "INSERT INTO usuarios (usuario, password) VALUES (?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usuario);
             stmt.setString(2, password);
