@@ -56,21 +56,31 @@ public class BibliotecaNegocio {
         }
     }
 
-    public void modificarLibro(String isbn, String titulo, String autor, double valorPrestamo) throws SQLException {
+    public boolean modificarLibro(String isbn, String titulo, String autor, double valorPrestamo) throws SQLException {
         if (!isbn.isEmpty() && !titulo.isEmpty() && !autor.isEmpty() && valorPrestamo > 0) {
             dao.modificarLibro(isbn, titulo, autor, valorPrestamo);
         } else {
             throw new IllegalArgumentException("Todos los campos deben ser válidos.");
         }
+        return false;
     }
 
-    public void eliminarLibro(String isbn) throws SQLException {
+    public boolean eliminarLibro(String isbn) throws SQLException {
         if (!isbn.isEmpty()) {
             dao.eliminarLibro(isbn);
         } else {
             throw new IllegalArgumentException("El ISBN no puede estar vacío.");
         }
+        return false;
     }
+    public boolean guardarLibro(String isbn, String titulo, String autor, double valorPrestamo) {
+        if (isbn == null || isbn.isEmpty() || titulo == null || titulo.isEmpty() || 
+            autor == null || autor.isEmpty() || valorPrestamo <= 0) {
+            return false;
+        }
+        return dao.insertarLibro(isbn, titulo, autor, valorPrestamo);
+    }
+
 }
 
 

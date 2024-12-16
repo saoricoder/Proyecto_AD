@@ -44,19 +44,21 @@ public class BibliotecaDAO {
     }
 
     
-    public void insertarLibro(String isbn, String titulo, String autor, double valorPrestamo) throws SQLException {
+    public boolean insertarLibro(String isbn, String titulo, String autor, double valorPrestamo) {
         String sql = "INSERT INTO libro (isbn, titulo, autor, valor_prestamo) VALUES (?, ?, ?, ?)";
-
-        try (Connection conn = conexion.conectar();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (Connection con = new conexion().conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, isbn);
             ps.setString(2, titulo);
             ps.setString(3, autor);
             ps.setDouble(4, valorPrestamo);
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
+
     
     public void modificarAutor(String nombre, String apellido) {
     String sql = "UPDATE autor SET nombre = ?, apellido = ? WHERE nombre = ? AND apellido = ?";
