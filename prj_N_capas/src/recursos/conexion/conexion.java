@@ -45,7 +45,7 @@ public class conexion {
 
     // Método para verificar si un usuario existe (consultar por usuario)
     public boolean verificarUsuario(String usuario, String password) {
-        String sql = "SELECT * FROM usuario WHERE usuario = ? AND password = ?";
+        String sql = "SELECT * FROM usuarios WHERE usuario = ? AND password = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usuario);
             stmt.setString(2, password);

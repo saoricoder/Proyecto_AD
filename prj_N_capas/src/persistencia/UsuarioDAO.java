@@ -13,10 +13,10 @@ import oracle.jdbc.OracleTypes;  // Asegúrate de importar OracleTypes
 public class UsuarioDAO {
 
     private static final String FINDALL_USUARIOS = "{call SP_FINDALL_USUARIOS(?)}"; // Procedimiento almacenado que obtiene todos los usuarios
-    private static final String CREATE_USUARIO = "INSERT INTO usuario (usuario, password) VALUES (?, ?)";
-    private static final String UPDATE_USUARIO = "UPDATE usuario SET usuario = ?, password = ? WHERE id_usuario = ?";
-    private static final String DELETE_USUARIO = "DELETE FROM usuario WHERE id_usuario = ?";
-    private static final String FINDONE_USUARIO = "SELECT * FROM usuario WHERE id_usuario = ?";
+    private static final String CREATE_USUARIO = "INSERT INTO usuarios (usuario, password) VALUES (?, ?)";
+    private static final String UPDATE_USUARIO = "UPDATE usuarios SET usuario = ?, password = ? WHERE id_usuario = ?";
+    private static final String DELETE_USUARIO = "DELETE FROM usuarios WHERE id_usuario = ?";
+    private static final String FINDONE_USUARIO = "SELECT * FROM usuarios WHERE id_usuario = ?";
     
     private final conexion conexion = new conexion();
 
