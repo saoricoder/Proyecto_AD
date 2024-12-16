@@ -31,7 +31,8 @@ public class conexion {
         return conn;
     }
 
-    // Desconectar la base de datos
+    
+    // Método para desconectar
     public void desconectar() {
         try {
             if (conn != null && !conn.isClosed()) {

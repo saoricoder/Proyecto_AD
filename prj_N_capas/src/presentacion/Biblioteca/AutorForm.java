@@ -3,6 +3,8 @@ package presentacion.Biblioteca;
 import javax.swing.*;
 import negocio.BibliotecaNegocio;
 import java.awt.GridLayout;
+import java.sql.SQLException;
+import java.sql.ResultSet;
 
 public class AutorForm extends javax.swing.JFrame {
     private JTextField txtNombre;
@@ -53,7 +55,65 @@ public class AutorForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Autor guardado exitosamente.");
         });
 
-        // Otras acciones (Modificar, Eliminar, Buscar) pueden añadirse aquí
+        // Acción al presionar Buscar
+        btnBuscar.addActionListener(e -> {
+            String nombre = txtNombre.getText();
+            String apellido = txtApellido.getText();
+
+            BibliotecaNegocio negocio = new BibliotecaNegocio();
+            ResultSet rs = negocio.buscarAutor(nombre, apellido);
+
+            try {
+                if (rs.next()) {
+                    txtNombre.setText(rs.getString("nombre"));
+                    txtApellido.setText(rs.getString("apellido"));
+                    JOptionPane.showMessageDialog(this, "Autor encontrado.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Autor no encontrado.");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error al buscar el autor: " + ex.getMessage());
+            }
+        });
+        
+        // Acción al presionar Modificar
+        btnModificar.addActionListener(e -> {
+            String nombre = txtNombre.getText();
+            String apellido = txtApellido.getText();
+
+            BibliotecaNegocio negocio = new BibliotecaNegocio();
+            negocio.modificarAutor(nombre, apellido);
+            JOptionPane.showMessageDialog(this, "Autor modificado exitosamente.");
+        });
+
+        // Acción al presionar Eliminar
+        btnEliminar.addActionListener(e -> {
+            String nombre = txtNombre.getText();
+            String apellido = txtApellido.getText();
+
+            BibliotecaNegocio negocio = new BibliotecaNegocio();
+            negocio.eliminarAutor(nombre, apellido);
+            limpiarCampos();
+            JOptionPane.showMessageDialog(this, "Autor eliminado exitosamente.");
+        });
+        
+        // Acción al presionar Guardar
+        btnGuardar.addActionListener(e -> {
+            String nombre = txtNombre.getText();
+            String apellido = txtApellido.getText();
+
+            BibliotecaNegocio negocio = new BibliotecaNegocio();
+            negocio.agregarAutor(nombre, apellido); // Código generado automáticamente
+            JOptionPane.showMessageDialog(this, "Autor guardado exitosamente.");
+        });
+
+        // Botón de regresar
+        JButton btnRegresar = new JButton("Regresar");
+        panel.add(btnRegresar);
+
+        btnRegresar.addActionListener(e -> {
+            this.dispose(); // Cierra la ventana
+        });
     }
 
     private void limpiarCampos() {

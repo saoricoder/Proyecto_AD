@@ -25,6 +25,13 @@ public class ModuloSeleccionListener implements ActionListener {
         } else if (source == form.getBtnBiblioteca()) {
             new AutorForm().setVisible(true);
             form.dispose();
+        } else if (source == form.getBtnUsuarios()) {
+            // Llamar a un formulario o mostrar interfaz de usuarios (CRUD)
+            JOptionPane.showMessageDialog(null, "Abrir módulo Usuarios ");
+            // Aquí puedes abrir un nuevo formulario para gestionar usuarios
+            // Ejemplo:
+            // new UsuarioForm().setVisible(true);
         }
     }
+
 }

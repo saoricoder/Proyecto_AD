@@ -11,6 +11,7 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
     private JButton btnNomina;
     private JButton btnSeleccion;
     private JButton btnBiblioteca;
+    private JButton btnUsuarios;
 
     public ModuloSeleccionForm() {
         setTitle("Módulo de Selección");
@@ -19,7 +20,7 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 1));
+        panel.setLayout(new GridLayout(5, 1));
 
         btnContabilidad = new JButton("Contabilidad");
         panel.add(btnContabilidad);
@@ -32,6 +33,9 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
 
         btnBiblioteca = new JButton("Biblioteca");
         panel.add(btnBiblioteca);
+        
+        btnUsuarios = new JButton("Usuarios");
+        panel.add(btnUsuarios);
 
         add(panel);
 
@@ -63,8 +67,19 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
                 mostrarOpciones("Biblioteca", new String[]{"Autor", "Libro", "Préstamo", "Cantidad Libros", "Reporte Libros"});
             }
         });
+        
+        btnUsuarios.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mostrarUsuarios();
+            }
+        });
     }
-
+    
+    // Método para mostrar el formulario de Usuarios
+    private void mostrarUsuarios() {
+        new presentacion.mostrarUsuarios().setVisible(true); // Abre el formulario de Usuarios
+    }
     // Método para mostrar las opciones de cada módulo
     private void mostrarOpciones(String modulo, String[] opciones) {
         String opcionSeleccionada = (String) JOptionPane.showInputDialog(
@@ -181,6 +196,10 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
 
     public JButton getBtnBiblioteca() {
         return btnBiblioteca;
+    }
+    
+    public JButton getBtnUsuarios() {
+        return btnUsuarios;
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
