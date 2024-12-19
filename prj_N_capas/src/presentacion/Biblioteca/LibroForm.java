@@ -1,77 +1,113 @@
 package presentacion.Biblioteca;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
-import recursos.conexion.conexion;
-import negocio.Libro;
 import negocio.BibliotecaNegocio;
-import persistencia.BibliotecaDAO;
+import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
+
+
 
 public class LibroForm extends JFrame {
-    private JTextField txtISBN, txtTitulo, txtAutor, txtValorPrestamo;
-    private JButton btnGuardar, btnBuscar, btnModificar, btnEliminar, btnRegresar;
-    private BibliotecaNegocio bibliotecaNegocio;
+    private final BibliotecaNegocio bibliotecaNegocio;
+
+    private JTextField txtISBN, txtTitulo, txtAutor, txtValorPrestamo, txtBuscarISBN, txtBuscarTitulo;
+    private JTextArea txtResultados;
 
     public LibroForm() {
         bibliotecaNegocio = new BibliotecaNegocio();
-        
-        // Configuración de la ventana principal
+
         setTitle("Gestión de Libros");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 300);
-        setLayout(new GridLayout(6, 2, 5, 5));
+        setLayout(new BorderLayout());
+        setSize(700, 600); // Ajustamos el tamaño de la ventana
 
-        // Componentes de la interfaz
-        JLabel lblISBN = new JLabel("ISBN:");
+        // Panel de Formulario
+        JPanel panelFormulario = new JPanel(new GridLayout(4, 2, 5, 5));
+        panelFormulario.setBorder(BorderFactory.createTitledBorder("Datos del Libro"));
+
+        panelFormulario.add(new JLabel("ISBN:"));
         txtISBN = new JTextField();
-        JLabel lblTitulo = new JLabel("Título:");
+        panelFormulario.add(txtISBN);
+
+        panelFormulario.add(new JLabel("Título:"));
         txtTitulo = new JTextField();
-        JLabel lblAutor = new JLabel("Autor:");
+        panelFormulario.add(txtTitulo);
+
+        panelFormulario.add(new JLabel("Autor:"));
         txtAutor = new JTextField();
-        JLabel lblValorPrestamo = new JLabel("Valor Préstamo:");
+        panelFormulario.add(txtAutor);
+
+        panelFormulario.add(new JLabel("Valor del Préstamo:"));
         txtValorPrestamo = new JTextField();
+        panelFormulario.add(txtValorPrestamo);
 
-        btnGuardar = new JButton("Guardar");
-        btnBuscar = new JButton("Buscar");
-        btnModificar = new JButton("Modificar");
-        btnEliminar = new JButton("Eliminar");
-        btnRegresar = new JButton("Regresar");
+        // Panel de Botones
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JButton btnAgregar = new JButton("Agregar");
+        JButton btnModificar = new JButton("Modificar");
+        JButton btnEliminar = new JButton("Eliminar");
 
-        // Añadiendo componentes al formulario
-        add(lblISBN);
-        add(txtISBN);
-        add(lblTitulo);
-        add(txtTitulo);
-        add(lblAutor);
-        add(txtAutor);
-        add(lblValorPrestamo);
-        add(txtValorPrestamo);
-        add(btnGuardar);
-        add(btnBuscar);
-        add(btnModificar);
-        add(btnEliminar);
-        add(btnRegresar);
+        panelBotones.add(btnAgregar);
+        panelBotones.add(btnModificar);
+        panelBotones.add(btnEliminar);
 
-        // Configuración de los listeners
-        btnGuardar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                guardarLibro();
-            }
-        });
+        // Botón "Regresar"
+        JButton btnRegresar = new JButton("Regresar");
+        panelBotones.add(btnRegresar);
 
-        btnBuscar.addActionListener(new ActionListener() {
+        // Panel de Búsqueda
+        JPanel panelBusqueda = new JPanel(new GridLayout(2, 2, 5, 5));
+        panelBusqueda.setBorder(BorderFactory.createTitledBorder("Buscar Libro"));
+
+        panelBusqueda.add(new JLabel("Buscar por ISBN:"));
+        txtBuscarISBN = new JTextField();
+        panelBusqueda.add(txtBuscarISBN);
+
+        panelBusqueda.add(new JLabel("Buscar por Título:"));
+        txtBuscarTitulo = new JTextField();
+        panelBusqueda.add(txtBuscarTitulo);
+
+        JButton btnBuscar = new JButton("Buscar");
+        panelBusqueda.add(btnBuscar);
+
+        // Área de Resultados
+        txtResultados = new JTextArea(10, 50);
+        txtResultados.setEditable(false);
+        JScrollPane scrollResultados = new JScrollPane(txtResultados);
+        scrollResultados.setBorder(BorderFactory.createTitledBorder("Resultados"));
+
+        // Agregar componentes al JFrame
+        JPanel panelCentro = new JPanel(new BorderLayout());
+        panelCentro.add(panelFormulario, BorderLayout.NORTH);
+        panelCentro.add(panelBotones, BorderLayout.CENTER);
+
+        add(panelCentro, BorderLayout.NORTH);
+        add(scrollResultados, BorderLayout.CENTER);
+        add(panelBusqueda, BorderLayout.SOUTH);
+
+        // Acciones de botones
+        btnAgregar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    buscarLibro();
+                    bibliotecaNegocio.agregarLibro(
+                        txtISBN.getText(),
+                        txtTitulo.getText(),
+                        txtAutor.getText(),
+                        Double.parseDouble(txtValorPrestamo.getText())
+                    );
+                    JOptionPane.showMessageDialog(null, "Libro agregado con éxito.");
                 } catch (SQLException ex) {
-                    Logger.getLogger(LibroForm.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(null, "Error al agregar el libro: " + ex.getMessage());
                 }
             }
         });
@@ -80,9 +116,15 @@ public class LibroForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    modificarLibro();
+                    bibliotecaNegocio.modificarLibro(
+                        txtISBN.getText(),
+                        txtTitulo.getText(),
+                        txtAutor.getText(),
+                        Double.parseDouble(txtValorPrestamo.getText())
+                    );
+                    JOptionPane.showMessageDialog(null, "Libro modificado con éxito.");
                 } catch (SQLException ex) {
-                    Logger.getLogger(LibroForm.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(null, "Error al modificar el libro: " + ex.getMessage());
                 }
             }
         });
@@ -91,9 +133,33 @@ public class LibroForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    eliminarLibro();
+                    bibliotecaNegocio.eliminarLibro(txtISBN.getText());
+                    JOptionPane.showMessageDialog(null, "Libro eliminado con éxito.");
                 } catch (SQLException ex) {
-                    Logger.getLogger(LibroForm.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(null, "Error al eliminar el libro: " + ex.getMessage());
+                }
+            }
+        });
+
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    ResultSet rs = bibliotecaNegocio.buscarLibro(
+                        txtBuscarISBN.getText(),
+                        txtBuscarTitulo.getText()
+                    );
+                    txtResultados.setText(""); // Limpiar resultados anteriores
+                    while (rs.next()) {
+                        txtResultados.append(
+                            "ISBN: " + rs.getString("isbn") + "\n" +
+                            "Título: " + rs.getString("titulo") + "\n" +
+                            "Autor: " + rs.getString("autor") + "\n" +
+                            "Valor del Préstamo: " + rs.getDouble("valor_prestamo") + "\n\n"
+                        );
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Error al buscar libros: " + ex.getMessage());
                 }
             }
         });
@@ -101,96 +167,11 @@ public class LibroForm extends JFrame {
         btnRegresar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                regresar();
+                dispose(); // Cierra esta ventana
+                // Aquí puedes abrir un menú principal u otra ventana si lo necesitas
             }
         });
-
-        setLocationRelativeTo(null); // Centrar la ventana
     }
-
-    private void guardarLibro() {
-        String isbn = txtISBN.getText();
-        String titulo = txtTitulo.getText();
-        String autor = txtAutor.getText();
-        String valorPrestamoStr = txtValorPrestamo.getText();
-
-        try {
-            double valorPrestamo = Double.parseDouble(valorPrestamoStr);
-            boolean resultado = bibliotecaNegocio.guardarLibro(isbn, titulo, autor, valorPrestamo);
-            if (resultado) {
-                JOptionPane.showMessageDialog(this, "Libro guardado correctamente.");
-                limpiarCampos();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al guardar el libro. Verifique los datos.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El valor de préstamo debe ser numérico.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void buscarLibro() throws SQLException {
-        String isbn = txtISBN.getText();
-        if (isbn.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, ingrese el ISBN para buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        Libro libro = (Libro) bibliotecaNegocio.buscarLibro(isbn);
-        if (libro != null) {
-            txtTitulo.setText(libro.getTitulo());
-            txtAutor.setText(libro.getAutor());
-            txtValorPrestamo.setText(String.valueOf(libro.getValorPrestamo()));
-        } else {
-            JOptionPane.showMessageDialog(this, "Libro no encontrado.", "Información", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
-    private void modificarLibro() throws SQLException {
-        String isbn = txtISBN.getText();
-        String titulo = txtTitulo.getText();
-        String autor = txtAutor.getText();
-        String valorPrestamoStr = txtValorPrestamo.getText();
-
-        try {
-            double valorPrestamo = Double.parseDouble(valorPrestamoStr);
-            boolean resultado = bibliotecaNegocio.modificarLibro(isbn, titulo, autor, valorPrestamo);
-            if (resultado) {
-                JOptionPane.showMessageDialog(this, "Libro modificado correctamente.");
-                limpiarCampos();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al modificar el libro. Verifique los datos.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El valor de préstamo debe ser numérico.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void eliminarLibro() throws SQLException {
-        String isbn = txtISBN.getText();
-        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Está seguro de eliminar este libro?", "Confirmación", JOptionPane.YES_NO_OPTION);
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            boolean resultado = bibliotecaNegocio.eliminarLibro(isbn);
-            if (resultado) {
-                JOptionPane.showMessageDialog(this, "Libro eliminado correctamente.");
-                limpiarCampos();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al eliminar el libro. Verifique el ISBN.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void regresar() {
-        dispose(); // Cierra la ventana actual
-        // Aquí puedes redirigir al menú principal si existe
-    }
-
-    private void limpiarCampos() {
-        txtISBN.setText("");
-        txtTitulo.setText("");
-        txtAutor.setText("");
-        txtValorPrestamo.setText("");
-    }
-
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -211,14 +192,25 @@ public class LibroForm extends JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+  
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-         SwingUtilities.invokeLater(() -> new LibroForm().setVisible(true));
+         SwingUtilities.invokeLater(() -> {
+            LibroForm form = new LibroForm();
+            form.setVisible(true);
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
+/**        private void limpiarCampos() {
+        txtISBN.setText("");
+        txtTitulo.setText("");
+        txtAutor.setText("");
+        txtValorPrestamo.setText("");
+    }**/

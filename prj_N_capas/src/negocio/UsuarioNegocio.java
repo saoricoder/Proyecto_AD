@@ -4,8 +4,20 @@ import persistencia.UsuarioDAO;
 import recursos.GlobalException;
 import recursos.NoDataExeption;
 import java.sql.SQLException;
+import java.util.Collection;
 
 public class UsuarioNegocio {
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    
+        // Método para obtener todos los usuarios
+    public Collection<Usuario> obtenerUsuarios() throws GlobalException, NoDataExeption {
+        return usuarioDAO.findAll();
+    }
+
+    // Método para obtener un usuario por su ID
+    public Usuario obtenerUsuarioPorId(Usuario usuario) throws GlobalException, NoDataExeption {
+        return usuarioDAO.findOne(usuario);
+    }
 
     // Valida si un usuario existe con la contraseña especificada
     public static boolean validarUsuario(String usuario, String contrasena) {

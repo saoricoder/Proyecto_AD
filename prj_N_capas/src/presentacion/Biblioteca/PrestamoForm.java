@@ -5,6 +5,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import negocio.BibliotecaNegocio;  // Importar la clase BibliotecaNegocio
+import negocio.CabeceraPrestamo;     // Modelo para CabeceraPrestamo
+import negocio.DetallePrestamo;      // Modelo para DetallePrestamo
 
 public class PrestamoForm extends JFrame {
 
@@ -14,7 +18,11 @@ public class PrestamoForm extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
 
+    private BibliotecaNegocio negocio;
+
     public PrestamoForm() {
+        negocio = new BibliotecaNegocio();
+        
         // Configuración de la ventana
         setTitle("Gestión de Préstamos");
         setSize(800, 600);
@@ -81,6 +89,9 @@ public class PrestamoForm extends JFrame {
         // Configurar eventos de botones
         configureButtonActions();
 
+        // Cargar datos en las tablas
+        cargarDatos();
+
         setVisible(true);
     }
 
@@ -121,26 +132,37 @@ public class PrestamoForm extends JFrame {
         });
     }
 
+    private void cargarDatos() {
+        // Llamar a la lógica de negocio para cargar las tablas desde la base de datos
+        List<CabeceraPrestamo> cabeceras = negocio.obtenerCabecerasPrestamo();
+        List<DetallePrestamo> detalles = negocio.obtenerDetallesPrestamo();
+
+        // Cargar los datos de cabecera en la tabla
+        for (CabeceraPrestamo cabecera : cabeceras) {
+            tableModel.addRow(new Object[]{
+                    cabecera.getNumero(),
+                    cabecera.getFechaPrestamo(),
+                    cabecera.getDescripcion(),
+                    "", "", "" // Deberás actualizar con los datos del detalle si es necesario
+            });
+        }
+    }
+
     private void agregarRegistro() {
-        tableModel.addRow(new Object[]{
+        // Agregar lógica para insertar un nuevo préstamo en la base de datos
+        CabeceraPrestamo nuevaCabecera = new CabeceraPrestamo(
                 txtNumero.getText(),
                 txtFechaPrestamo.getText(),
-                txtDescripcion.getText(),
-                txtCodigoLibro.getText(),
-                txtCantidad.getText(),
-                txtFechaEntrega.getText()
-        });
+                txtDescripcion.getText()
+        );
+        negocio.agregarCabecera(nuevaCabecera);
     }
 
     private void actualizarRegistro() {
+        // Lógica para actualizar un registro existente
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
-            tableModel.setValueAt(txtNumero.getText(), selectedRow, 0);
-            tableModel.setValueAt(txtFechaPrestamo.getText(), selectedRow, 1);
-            tableModel.setValueAt(txtDescripcion.getText(), selectedRow, 2);
-            tableModel.setValueAt(txtCodigoLibro.getText(), selectedRow, 3);
-            tableModel.setValueAt(txtCantidad.getText(), selectedRow, 4);
-            tableModel.setValueAt(txtFechaEntrega.getText(), selectedRow, 5);
+            // Actualizar los valores en la base de datos
         } else {
             JOptionPane.showMessageDialog(this, "Seleccione un registro para actualizar.");
         }
@@ -149,6 +171,9 @@ public class PrestamoForm extends JFrame {
     private void eliminarRegistro() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow != -1) {
+            // Eliminar el registro de la base de datos
+            String numero = (String) tableModel.getValueAt(selectedRow, 0);
+            negocio.eliminarCabecera(numero);
             tableModel.removeRow(selectedRow);
         } else {
             JOptionPane.showMessageDialog(this, "Seleccione un registro para eliminar.");

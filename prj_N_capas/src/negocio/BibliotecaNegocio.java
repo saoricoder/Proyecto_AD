@@ -1,86 +1,92 @@
 package negocio;
 
+import java.sql.*;
 import persistencia.BibliotecaDAO;
-import java.sql.SQLException;
+import java.util.List;
+
+import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class BibliotecaNegocio {
-    private BibliotecaDAO dao;
+    private final BibliotecaDAO bibliotecaDAO;
 
     public BibliotecaNegocio() {
-        dao = new BibliotecaDAO();
+        this.bibliotecaDAO = new BibliotecaDAO(); // Instanciamos el DAO
     }
 
-    public void agregarAutor(String nombre, String apellido) {
-        if (nombre != null && !nombre.isEmpty() && apellido != null && !apellido.isEmpty()) {
-            dao.insertarAutor(nombre, apellido);
-        } else {
-            throw new IllegalArgumentException("Nombre y apellido no pueden estar vacíos.");
-        }
+    public boolean agregarAutor(String nombre, String apellido) throws SQLException {
+        return bibliotecaDAO.agregarAutor(nombre, apellido);
     }
 
-    public ResultSet buscarAutor(String nombre, String apellido) {
-        return dao.buscarAutor(nombre, apellido); // Llamada al DAO
+    public ResultSet buscarAutor(String nombre, String apellido) throws SQLException {
+        return bibliotecaDAO.buscarAutores(nombre, apellido);
+    }
+
+    public boolean modificarAutor(int codigo, String nombre, String apellido) {
+        return bibliotecaDAO.modificarAutor(codigo, nombre, apellido);
+    }
+
+    public boolean eliminarAutor(int codigo) {
+        return bibliotecaDAO.eliminarAutor(codigo);
+    }
+
+    public List<String[]> obtenerTodosAutores() throws SQLException {
+        return bibliotecaDAO.obtenerTodosAutores();
     }
     
-    public void modificarAutor(String nombre, String apellido) {
-        if (nombre != null && !nombre.isEmpty() && apellido != null && !apellido.isEmpty()) {
-            dao.modificarAutor(nombre, apellido);
-        } else {
-            throw new IllegalArgumentException("Nombre y apellido no pueden estar vacíos.");
-        }
-    }
-    
-    public void eliminarAutor(String nombre, String apellido) {
-        if (nombre != null && !nombre.isEmpty() && apellido != null && !apellido.isEmpty()) {
-            dao.eliminarAutor(nombre, apellido);
-        } else {
-            throw new IllegalArgumentException("Nombre y apellido no pueden estar vacíos.");
-        }
-    }
+    /**
+     *
+     * @return
+     * @throws SQLException
+     */
+    /**
+    public List<String> cargarAutoresParaCombo() throws SQLException {
+           List<String[]> autores = bibliotecaDAO.obtenerTodosAutores();  // Obtén los autores del DAO
+           List<String> listaAutores = new ArrayList<>();
+           autores.forEach((autor) -> {
+               listaAutores.add(autor[1] + " " + autor[2]); // Concatenamos nombre y apellido para agregar al combo
+        });
+           return listaAutores;
+       }
+       **/
+
 
 
     public void agregarLibro(String isbn, String titulo, String autor, double valorPrestamo) throws SQLException {
-        if (!isbn.isEmpty() && !titulo.isEmpty() && !autor.isEmpty() && valorPrestamo > 0) {
-            dao.insertarLibro(isbn, titulo, autor, valorPrestamo);
-        } else {
-            throw new IllegalArgumentException("Todos los campos deben ser válidos.");
-        }
+        bibliotecaDAO.insertarLibro(isbn, titulo, autor, valorPrestamo);
     }
 
-    public ResultSet buscarLibro(String isbn) throws SQLException {
-        if (!isbn.isEmpty()) {
-            return dao.buscarLibro(isbn);
-        } else {
-            throw new IllegalArgumentException("El ISBN no puede estar vacío.");
-        }
+    public void modificarLibro(String isbn, String titulo, String autor, double valorPrestamo) throws SQLException {
+        bibliotecaDAO.actualizarLibro(isbn, titulo, autor, valorPrestamo);
     }
 
-    public boolean modificarLibro(String isbn, String titulo, String autor, double valorPrestamo) throws SQLException {
-        if (!isbn.isEmpty() && !titulo.isEmpty() && !autor.isEmpty() && valorPrestamo > 0) {
-            dao.modificarLibro(isbn, titulo, autor, valorPrestamo);
-        } else {
-            throw new IllegalArgumentException("Todos los campos deben ser válidos.");
-        }
-        return false;
+    public void eliminarLibro(String isbn) throws SQLException {
+        bibliotecaDAO.eliminarLibro(isbn);
     }
 
-    public boolean eliminarLibro(String isbn) throws SQLException {
-        if (!isbn.isEmpty()) {
-            dao.eliminarLibro(isbn);
-        } else {
-            throw new IllegalArgumentException("El ISBN no puede estar vacío.");
-        }
-        return false;
+    public ResultSet buscarLibro(String isbn, String titulo) throws SQLException {
+        return bibliotecaDAO.buscarLibro(isbn, titulo);
     }
-    public boolean guardarLibro(String isbn, String titulo, String autor, double valorPrestamo) {
-        if (isbn == null || isbn.isEmpty() || titulo == null || titulo.isEmpty() || 
-            autor == null || autor.isEmpty() || valorPrestamo <= 0) {
-            return false;
-        }
-        return dao.insertarLibro(isbn, titulo, autor, valorPrestamo);
+    
+    public List<String[]> obtenerTodosLibros() throws SQLException {
+        return bibliotecaDAO.obtenerTodosLibros();
     }
 
+    public List<CabeceraPrestamo> obtenerCabecerasPrestamo() {
+            return bibliotecaDAO.obtenerCabecerasPrestamo();
+        }
+
+        public List<DetallePrestamo> obtenerDetallesPrestamo() {
+            return bibliotecaDAO.obtenerDetallesPrestamo();
+        }
+
+        public void agregarCabecera(CabeceraPrestamo cabecera) {
+            bibliotecaDAO.agregarCabecera(cabecera);
+        }
+
+        public void eliminarCabecera(String numero) {
+            bibliotecaDAO.eliminarCabecera(numero);
+        }
 }
-
 

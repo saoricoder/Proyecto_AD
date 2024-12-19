@@ -8,6 +8,12 @@ package presentacion;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Collection;
+import javax.swing.table.DefaultTableModel;
+import negocio.Usuario;
+import negocio.UsuarioNegocio;
+import recursos.GlobalException;
+import recursos.NoDataExeption;
 
 public class mostrarUsuarios extends JFrame {
     private JButton btnAgregar;
@@ -72,6 +78,27 @@ public class mostrarUsuarios extends JFrame {
                 // Acción para buscar usuario
             }
         });
+        
+        btnBuscar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    UsuarioNegocio usuarioNegocio = new UsuarioNegocio();
+                    Collection<Usuario> usuarios = usuarioNegocio.obtenerUsuarios();
+
+                    // Convertir los usuarios a un formato adecuado para la JTable
+                    DefaultTableModel modelo = (DefaultTableModel) tablaUsuarios.getModel();
+                    modelo.setRowCount(0);  // Limpiar la tabla
+
+                    for (Usuario usuario : usuarios) {
+                        modelo.addRow(new Object[]{usuario.getIdUsuario(), usuario.getUsuario(), usuario.getPassword()});
+                    }
+                } catch (GlobalException | NoDataExeption ex) {
+                    JOptionPane.showMessageDialog(mostrarUsuarios.this, "Error al cargar usuarios: " + ex.getMessage());
+                }
+            }
+        });
+
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

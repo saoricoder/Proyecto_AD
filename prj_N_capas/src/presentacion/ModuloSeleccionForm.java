@@ -1,26 +1,27 @@
 package presentacion;
 
-import escucha.ModuloSeleccionListener;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class ModuloSeleccionForm extends javax.swing.JFrame {
-    private JButton btnContabilidad;
-    private JButton btnNomina;
-    private JButton btnSeleccion;
-    private JButton btnBiblioteca;
-    private JButton btnUsuarios;
+    private final JButton btnContabilidad;
+    private final JButton btnNomina;
+    private final JButton btnSeleccion;
+    private final JButton btnBiblioteca;
+    private final JButton btnUsuarios;
+    private final JButton btnRegresar;
 
     public ModuloSeleccionForm() {
         setTitle("Módulo de Selección");
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
+        setSize(600, 500); // Pantalla completa
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 1));
+        panel.setLayout(new GridLayout(6, 1));
 
         btnContabilidad = new JButton("Contabilidad");
         panel.add(btnContabilidad);
@@ -36,6 +37,10 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
         
         btnUsuarios = new JButton("Usuarios");
         panel.add(btnUsuarios);
+        
+        // Inicialización y agregado del botón Regresar
+        btnRegresar = new JButton("Regresar");
+        panel.add(btnRegresar); // Agregar al panel
 
         add(panel);
 
@@ -74,6 +79,8 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
                 mostrarUsuarios();
             }
         });
+        
+        btnRegresar.addActionListener(e -> dispose());
     }
     
     // Método para mostrar el formulario de Usuarios
@@ -180,6 +187,7 @@ public class ModuloSeleccionForm extends javax.swing.JFrame {
             }
         }
     }
+    
 
     // Métodos getter para los botones
     public JButton getBtnContabilidad() {

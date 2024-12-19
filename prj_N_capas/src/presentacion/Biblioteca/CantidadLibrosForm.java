@@ -1,17 +1,25 @@
 package presentacion.Biblioteca;
 
+import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.Date;
+import negocio.BibliotecaNegocio;
+import java.util.List;
+//import com.toedter.calendar.JDateChooser;
 
 public class CantidadLibrosForm extends JFrame {
 
-    private JTextField txtFecha;
-    private JButton btnGenerarReporte, btnImprimir;
-    private JTable table;
-    private DefaultTableModel tableModel;
+    //private final JDateChooser dateChooser;  // Declarar el JDateChooser
+    private final JButton btnGenerarReporte;
+    private final JButton btnImprimir;
+    private final JTable table;
+    private final DefaultTableModel tableModel;
+    private final BibliotecaNegocio bibliotecaNegocio;
 
     public CantidadLibrosForm() {
         // Configuración de la ventana
@@ -20,13 +28,16 @@ public class CantidadLibrosForm extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        // Crear instancia de BibliotecaNegocio
+        bibliotecaNegocio = new BibliotecaNegocio();
+
         // Panel superior: Entrada de datos
         JPanel panelEntrada = new JPanel(new FlowLayout());
         panelEntrada.setBorder(BorderFactory.createTitledBorder("Generar Reporte"));
-
-        panelEntrada.add(new JLabel("Fecha (YYYY-MM-DD):"));
-        txtFecha = new JTextField(10);
-        panelEntrada.add(txtFecha);
+        /**  
+        dateChooser = new JDateChooser();
+        dateChooser.setDateFormatString("yyyy-MM-dd");
+        panelEntrada.add(dateChooser);**/
 
         btnGenerarReporte = new JButton("Generar Reporte");
         panelEntrada.add(btnGenerarReporte);
@@ -69,24 +80,26 @@ public class CantidadLibrosForm extends JFrame {
     private void generarReporte() {
         // Limpiar tabla existente
         tableModel.setRowCount(0);
-
-        // Simulación de datos generados
-        String fecha = txtFecha.getText();
-        if (fecha.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, ingrese una fecha.");
+        /**
+        // Obtener fecha ingresada
+        Date fecha = dateChooser.getDate();  // Obtener la fecha seleccionada
+        if (fecha == null) {
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione una fecha.");
             return;
         }
 
-        // Datos simulados para el reporte
-        Object[][] datos = {
-            {fecha, "L001", 3},
-            {fecha, "L002", 5},
-            {fecha, "L003", 2}
-        };
+        // Obtener los libros de la base de datos a través de BibliotecaNegocio
+        try {
+            List<String[]> libros = bibliotecaNegocio.listarLibros();
 
-        for (Object[] fila : datos) {
-            tableModel.addRow(fila);
-        }
+            // Llenar la tabla con los datos obtenidos de la base de datos
+            libros.forEach((libro) -> {
+                tableModel.addRow(new Object[]{fecha.toString(), libro[0], libro[1]});
+            });
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al obtener los datos de los libros: " + ex.getMessage());
+        }**/
     }
 
     private void imprimirReporte() {
@@ -98,6 +111,7 @@ public class CantidadLibrosForm extends JFrame {
             JOptionPane.showMessageDialog(this, "Ocurrió un error al imprimir: " + e.getMessage());
         }
     }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
