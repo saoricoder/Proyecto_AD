@@ -1,28 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package negocio;
 
-/**
- *
- * @author lizet
- */
+import java.sql.Date;
+
 public class CabeceraPrestamo {
 
     private String numero;         // Número del préstamo
-    private String fechaPrestamo;  // Fecha del préstamo
+    private Date fechaPrestamo;    // Fecha del préstamo
     private String descripcion;    // Descripción del préstamo
 
     // Constructor
-    public CabeceraPrestamo(String numero, String fechaPrestamo, String descripcion) {
+    public CabeceraPrestamo(String numero, Date fechaPrestamo, String descripcion) {
         this.numero = numero;
         this.fechaPrestamo = fechaPrestamo;
         this.descripcion = descripcion;
     }
 
-    // Getters y Setters
+    // Getters y setters
     public String getNumero() {
         return numero;
     }
@@ -31,11 +24,11 @@ public class CabeceraPrestamo {
         this.numero = numero;
     }
 
-    public String getFechaPrestamo() {
+    public Date getFechaPrestamo() {
         return fechaPrestamo;
     }
 
-    public void setFechaPrestamo(String fechaPrestamo) {
+    public void setFechaPrestamo(Date fechaPrestamo) {
         this.fechaPrestamo = fechaPrestamo;
     }
 
@@ -51,7 +44,7 @@ public class CabeceraPrestamo {
     public String toString() {
         return "CabeceraPrestamo{" +
                 "numero='" + numero + '\'' +
-                ", fechaPrestamo='" + fechaPrestamo + '\'' +
+                ", fechaPrestamo=" + fechaPrestamo +
                 ", descripcion='" + descripcion + '\'' +
                 '}';
     }

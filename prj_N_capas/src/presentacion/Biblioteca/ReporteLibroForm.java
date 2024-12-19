@@ -1,16 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package presentacion.Biblioteca;
 
+package presentacion.Biblioteca;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import recursos.conexion.conexion;
 
 public class ReporteLibroForm extends JFrame {
 
@@ -83,36 +79,39 @@ public class ReporteLibroForm extends JFrame {
             return;
         }
 
-        try (Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "usuario", "contraseña")) {
+        try (Connection connection = new conexion().conectar()) {
             Statement statement = connection.createStatement();
 
-            // Consulta para obtener autores y libros cruzados con la cantidad
-            String query = "SELECT a.nombre AS autor, l.titulo AS libro, COUNT(*) AS cantidad " +
-                           "FROM Autor a " +
-                           "JOIN Libro l ON a.id_autor = l.id_autor " +
-                           "WHERE l.fecha_publicacion <= TO_DATE('" + fecha + "', 'YYYY-MM-DD') " +
-                           "GROUP BY a.nombre, l.titulo " +
-                           "ORDER BY a.nombre, l.titulo";
+            // Obtener autores
+            String queryAutores = "SELECT nombre, apellido FROM Autor";
+            ResultSet autoresResultSet = statement.executeQuery(queryAutores);
 
-            ResultSet resultSet = statement.executeQuery(query);
-
-            // Obtener columnas dinámicas
+            // Agregar las columnas (autores) a la tabla
             tableModel.addColumn("Libro / Autor");
-            /**while (resultSet.next()) {
-                String autor = resultSet.getString("autor");
-                if (!tableModel.getColumnIdentifiers().contains(autor)) {
-                    tableModel.addColumn(autor);
-                }
-            }**/
+            while (autoresResultSet.next()) {
+                String autor = autoresResultSet.getString("nombre") + " " + autoresResultSet.getString("apellido");
+                tableModel.addColumn(autor);
+            }
 
-            // Reiniciar el ResultSet para llenar filas
-            resultSet.beforeFirst();
-            while (resultSet.next()) {
-                String libro = resultSet.getString("libro");
-                String autor = resultSet.getString("autor");
-                int cantidad = resultSet.getInt("cantidad");
+            // Consulta para obtener los libros, autores y cantidad de préstamos
+            String queryLibros = "SELECT l.titulo AS libro, a.nombre AS autor, a.apellido AS apellido, " +
+                                 "SUM(d.CANTIDAD) AS cantidad " +
+                                 "FROM LIBRO l " +
+                                 "JOIN AUTOR a ON l.AUTOR = a.codigo " +
+                                 "JOIN DETALLEPRESTAMO d ON l.ISBN = d.COD_LIBRO " +
+                                 "WHERE d.FECHA <= TO_DATE('" + fecha + "', 'YYYY-MM-DD') " +
+                                 "GROUP BY l.titulo, a.nombre, a.apellido " +
+                                 "ORDER BY l.titulo, a.nombre";
 
-                // Encontrar la fila correspondiente al libro
+            ResultSet librosResultSet = statement.executeQuery(queryLibros);
+
+            // Procesar los resultados y llenar las filas
+            while (librosResultSet.next()) {
+                String libro = librosResultSet.getString("libro");
+                String autor = librosResultSet.getString("autor") + " " + librosResultSet.getString("apellido");
+                int cantidad = librosResultSet.getInt("cantidad");
+
+                // Verificar si la fila ya existe para el libro
                 int rowIndex = -1;
                 for (int i = 0; i < tableModel.getRowCount(); i++) {
                     if (tableModel.getValueAt(i, 0).equals(libro)) {
@@ -121,7 +120,7 @@ public class ReporteLibroForm extends JFrame {
                     }
                 }
 
-                // Si no existe la fila, crearla
+                // Si no existe la fila, agregarla
                 if (rowIndex == -1) {
                     Object[] row = new Object[tableModel.getColumnCount()];
                     row[0] = libro;
@@ -129,7 +128,7 @@ public class ReporteLibroForm extends JFrame {
                     rowIndex = tableModel.getRowCount() - 1;
                 }
 
-                // Agregar cantidad al cruce correcto
+                // Buscar la columna correspondiente al autor y agregar la cantidad
                 int colIndex = tableModel.findColumn(autor);
                 tableModel.setValueAt(cantidad, rowIndex, colIndex);
             }
@@ -147,6 +146,9 @@ public class ReporteLibroForm extends JFrame {
             JOptionPane.showMessageDialog(this, "Ocurrió un error al imprimir: " + e.getMessage());
         }
     }
+
+
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

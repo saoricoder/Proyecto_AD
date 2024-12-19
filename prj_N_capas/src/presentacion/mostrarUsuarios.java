@@ -43,8 +43,16 @@ public class mostrarUsuarios extends JFrame {
         panelBotones.add(btnBuscar);
 
         // Tabla de usuarios
-        tablaUsuarios = new JTable();  // Esto lo deberías llenar con los datos de la BD
+        tablaUsuarios = new JTable();
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.addColumn("ID_USUARIO");
+        modelo.addColumn("USUARIO");
+        modelo.addColumn("PASSWORD");
+        tablaUsuarios.setModel(modelo);
+
         JScrollPane scrollPane = new JScrollPane(tablaUsuarios);
+        add(panelBotones, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
 
         // Agregar componentes a la ventana
         add(panelBotones, BorderLayout.NORTH);
@@ -72,12 +80,7 @@ public class mostrarUsuarios extends JFrame {
             }
         });
 
-        btnBuscar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Acción para buscar usuario
-            }
-        });
+
         
         btnBuscar.addActionListener(new ActionListener() {
             @Override
@@ -86,7 +89,6 @@ public class mostrarUsuarios extends JFrame {
                     UsuarioNegocio usuarioNegocio = new UsuarioNegocio();
                     Collection<Usuario> usuarios = usuarioNegocio.obtenerUsuarios();
 
-                    // Convertir los usuarios a un formato adecuado para la JTable
                     DefaultTableModel modelo = (DefaultTableModel) tablaUsuarios.getModel();
                     modelo.setRowCount(0);  // Limpiar la tabla
 

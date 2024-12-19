@@ -172,6 +172,7 @@ public class LibroForm extends JFrame {
             }
         });
     }
+
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -192,7 +193,7 @@ public class LibroForm extends JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
   
 
     /**
@@ -204,7 +205,6 @@ public class LibroForm extends JFrame {
             form.setVisible(true);
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }

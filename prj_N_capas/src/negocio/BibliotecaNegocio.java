@@ -7,6 +7,9 @@ import java.util.List;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import recursos.GlobalException;
+import recursos.NoDataExeption;
 
 public class BibliotecaNegocio {
     private final BibliotecaDAO bibliotecaDAO;
@@ -73,20 +76,33 @@ public class BibliotecaNegocio {
         return bibliotecaDAO.obtenerTodosLibros();
     }
 
-    public List<CabeceraPrestamo> obtenerCabecerasPrestamo() {
-            return bibliotecaDAO.obtenerCabecerasPrestamo();
+    public List<CabeceraPrestamo> obtenerCabeceraPrestamo(Date fechaInicio, Date fechaFin) {
+    return bibliotecaDAO.obtenerCabeceraPrestamo(fechaInicio, fechaFin);
+}
+
+
+    public List<DetallePrestamo> obtenerDetallePrestamo() {
+            return bibliotecaDAO.obtenerDetallePrestamo();
         }
 
-        public List<DetallePrestamo> obtenerDetallesPrestamo() {
-            return bibliotecaDAO.obtenerDetallesPrestamo();
-        }
-
-        public void agregarCabecera(CabeceraPrestamo cabecera) {
+    public void agregarCabecera(CabeceraPrestamo cabecera) {
             bibliotecaDAO.agregarCabecera(cabecera);
         }
 
-        public void eliminarCabecera(String numero) {
+    public void eliminarCabecera(String numero) {
             bibliotecaDAO.eliminarCabecera(numero);
+        }
+
+    public ResultSet obtenerAutores() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public Collection<Usuario> obtenerUsuarios() throws GlobalException, NoDataExeption {
+            try {
+                return bibliotecaDAO.obtenerUsuarios();
+            } catch (SQLException e) {
+                throw new GlobalException("Error al obtener usuarios de la base de datos", e);
+            }
         }
 }
 

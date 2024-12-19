@@ -11,8 +11,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date; 
+import javax.swing.JOptionPane;
+import java.util.*;
+import java.sql.*;
+import negocio.Usuario;
 
 public class BibliotecaDAO {
+
+
     //private static final Logger LOGGER = Logger.getLogger(BibliotecaDAO.class.getName());
     
     private final Connection conn;
@@ -102,6 +109,13 @@ public class BibliotecaDAO {
         return autores;
     }
     
+        // Método para obtener los autores
+    public ResultSet obtenerAutores() throws SQLException {
+        String query = "SELECT NOMBRE, APELLIDO FROM AUTOR";
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery(query);
+    }
+    
         public void insertarLibro(String isbn, String titulo, String autor, double valorPrestamo) throws SQLException {
         String sql = "INSERT INTO LIBRO (ISBN, TITULO, AUTOR, VALOR_PRESTAMO) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -157,7 +171,7 @@ public class BibliotecaDAO {
             return libros;
         }
 
-    
+    /**
     public List<CabeceraPrestamo> obtenerCabecerasPrestamo() {
         List<CabeceraPrestamo> cabeceras = new ArrayList<>();
         try {
@@ -196,24 +210,25 @@ public class BibliotecaDAO {
             e.printStackTrace();
         }
         return detalles;
-    }
+    }**/
 
-    public void agregarCabecera(CabeceraPrestamo cabecera) {
+    public void agregarCabecera(CabeceraPrestamo cabecera) { 
         try {
-            String query = "INSERT INTO CABECERAPRESTAMO (numero, fechaPrestamo, descripcion) VALUES (?, ?, ?)";
+            String query = "INSERT INTO CABECERAPRESTAMO (NUMERO, FECHAPRESTAMO, DESCRIPCION) VALUES (?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, cabecera.getNumero());
-            stmt.setString(2, cabecera.getFechaPrestamo());
-            stmt.setString(3, cabecera.getDescripcion());
+            stmt.setString(1, cabecera.getNumero()); // Asignar el número como string
+            stmt.setDate(2, cabecera.getFechaPrestamo()); // Asignar la fecha como java.sql.Date
+            stmt.setString(3, cabecera.getDescripcion()); // Asignar la descripción como string
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+
     public void eliminarCabecera(String numero) {
         try {
-            String query = "DELETE FROM CABECERAPRESTAMO WHERE numero = ?";
+            String query = "DELETE FROM CABECERAPRESTAMO WHERE NUMERO = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, numero);
             stmt.executeUpdate();
@@ -221,8 +236,142 @@ public class BibliotecaDAO {
             e.printStackTrace();
         }
     }
+    
+    // Método para obtener datos de la tabla CABECERAPRESTAMO
+    public List<CabeceraPrestamo> obtenerCabeceraPrestamo(Date fechaInicio, Date fechaFin) {
+        List<CabeceraPrestamo> datos = new ArrayList<>();
+        String query = "SELECT NUMERO, FECHAPRESTAMO, DESCRIPCION FROM CABECERAPRESTAMO WHERE FECHAPRESTAMO BETWEEN ? AND ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setDate(1, new java.sql.Date(fechaInicio.getTime()));
+            stmt.setDate(2, new java.sql.Date(fechaFin.getTime()));
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                // Crear una nueva instancia de CabeceraPrestamo y añadirla a la lista
+                CabeceraPrestamo prestamo = new CabeceraPrestamo(
+                    rs.getString("NUMERO"),
+                    rs.getDate("FECHAPRESTAMO"),
+                    rs.getString("DESCRIPCION")
+                );
+                datos.add(prestamo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return datos;
+    }
 
 
+    // Método para obtener datos de la tabla DETALLEPRESTAMO
+    public List<Object[]> obtenerDetallePrestamo(Date fechaInicio, Date fechaFin) {
+        List<Object[]> datos = new ArrayList<>();
+        String query = "SELECT COD_LIBRO, CANTIDAD, FECHA FROM DETALLEPRESTAMO WHERE FECHA BETWEEN ? AND ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setDate(1, new java.sql.Date(fechaInicio.getTime()));
+            stmt.setDate(2, new java.sql.Date(fechaFin.getTime()));
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                datos.add(new Object[] {
+                    rs.getString("COD_LIBRO"),
+                    rs.getInt("CANTIDAD"),
+                    rs.getDate("FECHA")
+                });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return datos;
+    }
+
+
+
+    public List<DetallePrestamo> obtenerDetallePrestamo() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+   
+
+    // Método para generar el reporte de los libros prestados en una fecha específica
+    public List<String[]> generarReportePorFecha(java.util.Date fecha) {
+           List<String[]> resultados = new ArrayList<>();
+           String query = "SELECT c.FECHAPRESTAMO, d.COD_LIBRO, d.CANTIDAD " +
+                          "FROM CABECERAPRESTAMO c " +
+                          "JOIN DETALLEPRESTAMO d ON c.NUMERO = d.NUMERO " +
+                          "WHERE c.FECHAPRESTAMO = ?";
+
+           try (PreparedStatement stmt = conn.prepareStatement(query)) {
+               // Convertir java.util.Date a java.sql.Date
+               java.sql.Date sqlDate = new java.sql.Date(fecha.getTime());
+               stmt.setDate(1, sqlDate);  // Establecer el parámetro de fecha
+
+               try (ResultSet rs = stmt.executeQuery()) {
+                   while (rs.next()) {
+                       String fechaPrestamo = rs.getDate("FECHAPRESTAMO").toString();
+                       String codigoLibro = rs.getString("COD_LIBRO");
+                       int cantidad = rs.getInt("CANTIDAD");
+                       resultados.add(new String[]{fechaPrestamo, codigoLibro, String.valueOf(cantidad)});
+                   }
+               }
+
+           } catch (SQLException e) {
+               JOptionPane.showMessageDialog(null, "Error al obtener los datos del reporte: " + e.getMessage());
+           }
+           return resultados;
+       }
+
+    // Método para cerrar la conexión
+    public void cerrarConexion() {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al cerrar la conexión: " + e.getMessage());
+        }
+    }
+
+    public int obtenerCantidadTotalLibros(java.util.Date fechaSeleccionada) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
+    // Método para obtener las fechas únicas de la tabla CABECERAPRESTAMO
+    public List<java.util.Date> obtenerFechasDisponibles() {
+        List<java.util.Date> fechas = new ArrayList<>();
+        String query = "SELECT DISTINCT FECHAPRESTAMO FROM CABECERAPRESTAMO";
+
+        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                java.sql.Date sqlDate = rs.getDate("FECHAPRESTAMO");
+                if (sqlDate != null) {
+                    // Conversión de java.sql.Date a java.util.Date
+                    fechas.add(new java.util.Date(sqlDate.getTime()));
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al obtener las fechas: " + e.getMessage());
+        }
+        return fechas;
+    }
+    
+    public Collection<Usuario> obtenerUsuarios() throws SQLException {
+        Collection<Usuario> usuarios = new ArrayList<>();
+        String query = "SELECT ID_USUARIO, USUARIO, PASSWORD FROM USUARIOS";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+
+        while (rs.next()) {
+            Usuario usuario = new Usuario(rs.getInt("ID_USUARIO"), rs.getString("USUARIO"), rs.getString("PASSWORD"));
+            usuarios.add(usuario);
+        }
+
+        return usuarios;
+    }
 }
 
 

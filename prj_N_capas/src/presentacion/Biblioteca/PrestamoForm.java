@@ -5,53 +5,48 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-import negocio.BibliotecaNegocio;  // Importar la clase BibliotecaNegocio
-import negocio.CabeceraPrestamo;     // Modelo para CabeceraPrestamo
-import negocio.DetallePrestamo;      // Modelo para DetallePrestamo
+import java.sql.*;
 
 public class PrestamoForm extends JFrame {
 
-    private JTextField txtNumero, txtFechaPrestamo, txtDescripcion;
-    private JTextField txtCodigoLibro, txtCantidad, txtFechaEntrega;
-    private JButton btnAgregar, btnActualizar, btnEliminar, btnGuardar, btnBuscar;
-    private JTable table;
-    private DefaultTableModel tableModel;
+    // Componentes de la interfaz
+    private JTextField txtNumero, txtFechaPrestamo, txtDescripcion, txtCodigoLibro, txtCantidad, txtFechaEntrega;
+    private JButton btnGuardar, btnBuscar, btnModificar, btnEliminar, btnRegresar;
+    private JTable tableCabecera, tableDetalle;
+    private DefaultTableModel modelCabecera, modelDetalle;
 
-    private BibliotecaNegocio negocio;
+    // Conexión a la base de datos
+    private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe";
+    private static final String USER = "SYSTEM";
+    private static final String PASSWORD = "23889";
 
     public PrestamoForm() {
-        negocio = new BibliotecaNegocio();
-        
-        // Configuración de la ventana
         setTitle("Gestión de Préstamos");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Panel superior: Cabecera de préstamo
-        JPanel panelCabecera = new JPanel(new GridLayout(3, 2, 10, 10));
-        panelCabecera.setBorder(BorderFactory.createTitledBorder("Cabecera de Préstamo"));
+        // Panel superior: Formulario de cabecera
+        JPanel panelCabecera = new JPanel(new GridLayout(4, 2, 10, 10));
+        panelCabecera.setBorder(BorderFactory.createTitledBorder("Cabecera del Préstamo"));
 
         panelCabecera.add(new JLabel("Número:"));
         txtNumero = new JTextField();
         panelCabecera.add(txtNumero);
 
-        panelCabecera.add(new JLabel("Fecha del préstamo:"));
+        panelCabecera.add(new JLabel("Fecha del Préstamo (YYYY-MM-DD):"));
         txtFechaPrestamo = new JTextField();
         panelCabecera.add(txtFechaPrestamo);
 
-        panelCabecera.add(new JLabel("Descripción:"));
+        panelCabecera.add(new JLabel("Descripción (Autor):"));
         txtDescripcion = new JTextField();
         panelCabecera.add(txtDescripcion);
 
-        add(panelCabecera, BorderLayout.NORTH);
-
-        // Panel central: Detalle de préstamo
+        // Panel central: Formulario de detalle
         JPanel panelDetalle = new JPanel(new GridLayout(3, 2, 10, 10));
-        panelDetalle.setBorder(BorderFactory.createTitledBorder("Detalle de Préstamo"));
+        panelDetalle.setBorder(BorderFactory.createTitledBorder("Detalle del Préstamo"));
 
-        panelDetalle.add(new JLabel("Código del libro:"));
+        panelDetalle.add(new JLabel("Código de Libro (ISBN):"));
         txtCodigoLibro = new JTextField();
         panelDetalle.add(txtCodigoLibro);
 
@@ -59,142 +54,192 @@ public class PrestamoForm extends JFrame {
         txtCantidad = new JTextField();
         panelDetalle.add(txtCantidad);
 
-        panelDetalle.add(new JLabel("Fecha de entrega:"));
+        panelDetalle.add(new JLabel("Fecha de Entrega (YYYY-MM-DD):"));
         txtFechaEntrega = new JTextField();
         panelDetalle.add(txtFechaEntrega);
 
-        add(panelDetalle, BorderLayout.CENTER);
-
-        // Panel inferior: Botones y tabla
+        // Panel de botones
         JPanel panelBotones = new JPanel(new FlowLayout());
-        btnAgregar = new JButton("Agregar");
-        btnActualizar = new JButton("Actualizar");
-        btnEliminar = new JButton("Eliminar");
         btnGuardar = new JButton("Guardar");
         btnBuscar = new JButton("Buscar");
+        btnModificar = new JButton("Modificar");
+        btnEliminar = new JButton("Eliminar");
+        btnRegresar = new JButton("Regresar");
 
-        panelBotones.add(btnAgregar);
-        panelBotones.add(btnActualizar);
-        panelBotones.add(btnEliminar);
         panelBotones.add(btnGuardar);
         panelBotones.add(btnBuscar);
+        panelBotones.add(btnModificar);
+        panelBotones.add(btnEliminar);
+        panelBotones.add(btnRegresar);
 
+        // Panel de tablas
+        modelCabecera = new DefaultTableModel(new String[]{"Número", "Fecha", "Descripción"}, 0);
+        tableCabecera = new JTable(modelCabecera);
+
+        modelDetalle = new DefaultTableModel(new String[]{"Código Libro", "Cantidad", "Fecha Entrega"}, 0);
+        tableDetalle = new JTable(modelDetalle);
+
+        JPanel panelTablas = new JPanel(new GridLayout(2, 1));
+        panelTablas.setBorder(BorderFactory.createTitledBorder("Registros"));
+        panelTablas.add(new JScrollPane(tableCabecera));
+        panelTablas.add(new JScrollPane(tableDetalle));
+
+        // Agregar componentes al frame
+        add(panelCabecera, BorderLayout.NORTH);
+        add(panelDetalle, BorderLayout.CENTER);
         add(panelBotones, BorderLayout.SOUTH);
+        add(panelTablas, BorderLayout.EAST);
 
-        // Tabla
-        tableModel = new DefaultTableModel(new Object[]{"Número", "Fecha Préstamo", "Descripción", "Código Libro", "Cantidad", "Fecha Entrega"}, 0);
-        table = new JTable(tableModel);
-        add(new JScrollPane(table), BorderLayout.EAST);
-
-        // Configurar eventos de botones
-        configureButtonActions();
-
-        // Cargar datos en las tablas
-        cargarDatos();
+        // Eventos
+        btnGuardar.addActionListener(e -> guardarPrestamo());
+        btnBuscar.addActionListener(e -> buscarPrestamo());
+        btnModificar.addActionListener(e -> modificarPrestamo());
+        btnEliminar.addActionListener(e -> eliminarPrestamo());
+        btnRegresar.addActionListener(e -> dispose());
+        
 
         setVisible(true);
     }
 
-    private void configureButtonActions() {
-        btnAgregar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                agregarRegistro();
-            }
-        });
+    private void guardarPrestamo() {
+        String numero = txtNumero.getText();
+        String fechaPrestamo = txtFechaPrestamo.getText();
+        String descripcion = txtDescripcion.getText();
+        String codigoLibro = txtCodigoLibro.getText();
+        String cantidad = txtCantidad.getText();
+        String fechaEntrega = txtFechaEntrega.getText();
 
-        btnActualizar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                actualizarRegistro();
-            }
-        });
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Insertar en CABECERAPRESTAMO
+            String queryCabecera = "INSERT INTO CABECERAPRESTAMO (NUMERO, FECHAPRESTAMO, DESCRIPCION) VALUES (?, TO_DATE(?, 'YYYY-MM-DD'), ?)";
+            PreparedStatement psCabecera = conn.prepareStatement(queryCabecera);
+            psCabecera.setString(1, numero);
+            psCabecera.setString(2, fechaPrestamo);
+            psCabecera.setString(3, descripcion);
+            psCabecera.executeUpdate();
 
-        btnEliminar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                eliminarRegistro();
-            }
-        });
+            // Insertar en DETALLEPRESTAMO
+            String queryDetalle = "INSERT INTO DETALLEPRESTAMO (COD_LIBRO, CANTIDAD, FECHA) VALUES (?, ?, TO_DATE(?, 'YYYY-MM-DD'))";
+            PreparedStatement psDetalle = conn.prepareStatement(queryDetalle);
+            psDetalle.setString(1, codigoLibro);
+            psDetalle.setString(2, cantidad);
+            psDetalle.setString(3, fechaEntrega);
+            psDetalle.executeUpdate();
 
-        btnGuardar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                guardarRegistros();
-            }
-        });
-
-        btnBuscar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                buscarRegistro();
-            }
-        });
-    }
-
-    private void cargarDatos() {
-        // Llamar a la lógica de negocio para cargar las tablas desde la base de datos
-        List<CabeceraPrestamo> cabeceras = negocio.obtenerCabecerasPrestamo();
-        List<DetallePrestamo> detalles = negocio.obtenerDetallesPrestamo();
-
-        // Cargar los datos de cabecera en la tabla
-        for (CabeceraPrestamo cabecera : cabeceras) {
-            tableModel.addRow(new Object[]{
-                    cabecera.getNumero(),
-                    cabecera.getFechaPrestamo(),
-                    cabecera.getDescripcion(),
-                    "", "", "" // Deberás actualizar con los datos del detalle si es necesario
-            });
+            JOptionPane.showMessageDialog(this, "Préstamo guardado exitosamente.");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al guardar el préstamo: " + e.getMessage());
         }
     }
 
-    private void agregarRegistro() {
-        // Agregar lógica para insertar un nuevo préstamo en la base de datos
-        CabeceraPrestamo nuevaCabecera = new CabeceraPrestamo(
-                txtNumero.getText(),
-                txtFechaPrestamo.getText(),
-                txtDescripcion.getText()
-        );
-        negocio.agregarCabecera(nuevaCabecera);
-    }
+    private void buscarPrestamo() {
+    // Limpiar las tablas antes de cargar nuevos resultados
+    modelCabecera.setRowCount(0);
+    modelDetalle.setRowCount(0);
 
-    private void actualizarRegistro() {
-        // Lógica para actualizar un registro existente
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            // Actualizar los valores en la base de datos
-        } else {
-            JOptionPane.showMessageDialog(this, "Seleccione un registro para actualizar.");
-        }
-    }
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Consulta para obtener los registros de la tabla CABECERAPRESTAMO
+            String queryCabecera = "SELECT NUMERO, TO_CHAR(FECHAPRESTAMO, 'YYYY-MM-DD') AS FECHAPRESTAMO, DESCRIPCION FROM CABECERAPRESTAMO";
+            PreparedStatement psCabecera = conn.prepareStatement(queryCabecera);
+            ResultSet rsCabecera = psCabecera.executeQuery();
 
-    private void eliminarRegistro() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            // Eliminar el registro de la base de datos
-            String numero = (String) tableModel.getValueAt(selectedRow, 0);
-            negocio.eliminarCabecera(numero);
-            tableModel.removeRow(selectedRow);
-        } else {
-            JOptionPane.showMessageDialog(this, "Seleccione un registro para eliminar.");
-        }
-    }
-
-    private void guardarRegistros() {
-        JOptionPane.showMessageDialog(this, "Registros guardados exitosamente.");
-    }
-
-    private void buscarRegistro() {
-        String numero = JOptionPane.showInputDialog(this, "Ingrese el número del préstamo a buscar:");
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            if (tableModel.getValueAt(i, 0).equals(numero)) {
-                table.setRowSelectionInterval(i, i);
-                JOptionPane.showMessageDialog(this, "Registro encontrado.");
-                return;
+            // Rellenar la tabla de la cabecera con los resultados de la consulta
+            while (rsCabecera.next()) {
+                String numero = rsCabecera.getString("NUMERO");
+                String fechaPrestamo = rsCabecera.getString("FECHAPRESTAMO");
+                String descripcion = rsCabecera.getString("DESCRIPCION");
+                modelCabecera.addRow(new Object[]{numero, fechaPrestamo, descripcion});
             }
+
+            // Consulta para obtener los registros de la tabla DETALLEPRESTAMO
+            String queryDetalle = "SELECT COD_LIBRO, CANTIDAD, TO_CHAR(FECHA, 'YYYY-MM-DD') AS FECHA FROM DETALLEPRESTAMO";
+            PreparedStatement psDetalle = conn.prepareStatement(queryDetalle);
+            ResultSet rsDetalle = psDetalle.executeQuery();
+
+            // Rellenar la tabla de detalle con los resultados de la consulta
+            while (rsDetalle.next()) {
+                String codigoLibro = rsDetalle.getString("COD_LIBRO");
+                String cantidad = rsDetalle.getString("CANTIDAD");
+                String fechaEntrega = rsDetalle.getString("FECHA");
+                modelDetalle.addRow(new Object[]{codigoLibro, cantidad, fechaEntrega});
+            }
+
+            JOptionPane.showMessageDialog(this, "Registros cargados correctamente.");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los registros: " + e.getMessage());
         }
-        JOptionPane.showMessageDialog(this, "Registro no encontrado.");
     }
+
+
+    private void modificarPrestamo() {
+        String numero = txtNumero.getText();
+        String fechaPrestamo = txtFechaPrestamo.getText();
+        String descripcion = txtDescripcion.getText();
+        String codigoLibro = txtCodigoLibro.getText();
+        String cantidad = txtCantidad.getText();
+        String fechaEntrega = txtFechaEntrega.getText();
+
+        if (numero.isEmpty() || fechaPrestamo.isEmpty() || descripcion.isEmpty() || 
+            codigoLibro.isEmpty() || cantidad.isEmpty() || fechaEntrega.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor complete todos los campos.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Actualizar en CABECERAPRESTAMO
+            String queryCabecera = "UPDATE CABECERAPRESTAMO SET FECHAPRESTAMO = TO_DATE(?, 'YYYY-MM-DD'), DESCRIPCION = ? WHERE NUMERO = ?";
+            PreparedStatement psCabecera = conn.prepareStatement(queryCabecera);
+            psCabecera.setString(1, fechaPrestamo);
+            psCabecera.setString(2, descripcion);
+            psCabecera.setString(3, numero);
+            psCabecera.executeUpdate();
+
+            // Actualizar en DETALLEPRESTAMO
+            String queryDetalle = "UPDATE DETALLEPRESTAMO SET CANTIDAD = ?, FECHA = TO_DATE(?, 'YYYY-MM-DD') WHERE COD_LIBRO = ? AND NUMERO = ?";
+            PreparedStatement psDetalle = conn.prepareStatement(queryDetalle);
+            psDetalle.setString(1, cantidad);
+            psDetalle.setString(2, fechaEntrega);
+            psDetalle.setString(3, codigoLibro);
+            psDetalle.setString(4, numero);
+            psDetalle.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Préstamo modificado exitosamente.");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al modificar el préstamo: " + e.getMessage());
+        }
+    }
+
+
+    private void eliminarPrestamo() {
+        String numero = txtNumero.getText();
+
+        if (numero.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese el número de préstamo para eliminar.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            // Eliminar de DETALLEPRESTAMO
+            String queryDetalle = "DELETE FROM DETALLEPRESTAMO WHERE NUMERO = ?";
+            PreparedStatement psDetalle = conn.prepareStatement(queryDetalle);
+            psDetalle.setString(1, numero);
+            psDetalle.executeUpdate();
+
+            // Eliminar de CABECERAPRESTAMO
+            String queryCabecera = "DELETE FROM CABECERAPRESTAMO WHERE NUMERO = ?";
+            PreparedStatement psCabecera = conn.prepareStatement(queryCabecera);
+            psCabecera.setString(1, numero);
+            psCabecera.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Préstamo eliminado exitosamente.");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al eliminar el préstamo: " + e.getMessage());
+        }
+    }
+
+
+
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -219,11 +264,11 @@ public class PrestamoForm extends JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-         new PrestamoForm();
- 
+   
+    public static void main(String[] args) {
+        new PrestamoForm();
     }
-
+}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-}
+
